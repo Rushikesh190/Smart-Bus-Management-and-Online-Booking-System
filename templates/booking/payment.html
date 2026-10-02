@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Secure Payment & Checkout — Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-4">
+  <div class="row g-4">
+    <!-- Left: Trip & Fare Summary -->
+    <div class="col-lg-4">
+      <div class="card border rounded-4 p-4 shadow-sm bg-white sticky-top" style="top: 80px;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="fs-4">📋</span>
+          <h5 class="fw-bold mb-0 text-navy">Trip Summary</h5>
+        </div>
+        
+        <div class="p-3 bg-light rounded-3 mb-3 border">
+          <div class="fs-5 fw-bold text-primary mb-1">{{ bus.from_city.name }} → {{ bus.to_city.name }}</div>
+          <div class="small text-secondary">
+            <div><strong>Coach:</strong> {{ bus.name }} ({{ bus.number }})</div>
+            <div><strong>Category:</strong> {{ bus.bus_type }}</div>
+            <div><strong>Date:</strong> {{ travel_date|date:"D, d M Y" }}</div>
+            <div><strong>Seats Selected:</strong> <span class="badge bg-navy text-warning font-monospace">{{ seats_csv }}</span></div>
+            <div class="mt-1"><strong>Boarding:</strong> {{ boarding_point }}</div>
+            <div><strong>Dropping:</strong> {{ dropping_point }}</div>
+          </div>
+        </div>
+
+        <h6 class="fw-bold text-navy small text-uppercase mb-2">Fare Breakdown</h6>
+        <div class="d-flex justify-content-between small text-secondary mb-1">
+          <span>Base Fare ({{ seats_list|length }} Seat{% if seats_list|length > 1 %}s{% endif %}):</span>
+          <span>₹{{ base_fare|floatformat:2 }}</span>
+        </div>
+        {% if discount_amount > 0 %}
+        <div class="d-flex justify-content-between small text-success mb-1">
+          <span>Coupon Discount ({{ coupon_code }}):</span>
+          <span>-₹{{ discount_amount|floatformat:2 }}</span>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between small text-secondary mb-3">
+          <span>GST (5%):</span>
+          <span>₹{{ gst_amount|floatformat:2 }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <span class="fw-bold fs-6">Payable Total:</span>
+          <span class="fs-3 fw-bold text-danger font-display">₹{{ total_fare|floatformat:2 }}</span>
+        </div>
+        
+        <div class="mt-3 p-2 bg-success bg-opacity-10 text-success rounded-3 small text-center fw-bold">
+          🔒 256-Bit SSL Encrypted & Verified Payment
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Payment & Scanner Console -->
+    <div class="col-lg-8">
+      <div class="card border rounded-4 p-4 shadow-sm bg-white">
+        <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+          <div>
+            <h4 class="fw-bold mb-1 text-navy">Complete Payment to Generate Ticket</h4>
+            <p class="text-secondary small mb-0">Please pay the total amount of <strong>₹{{ total_fare|floatformat:2 }}</strong> via PhonePe QR scanner or other payment channels below.</p>
+          </div>
+          <div class="badge bg-warning text-dark px-3 py-2 rounded-pill font-monospace fw-bold">
+            AMOUNT: ₹{{ total_fare|floatformat:2 }}
+          </div>
+        </div>
+
+        <!-- Payment Tabs -->
+        <ul class="nav nav-pills nav-fill gap-2 mb-4 bg-light p-2 rounded-4" id="paymentTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill fw-bold" id="upi-tab" data-bs-toggle="tab" data-bs-target="#tab-upi" type="button" role="tab" onclick="setPaymentMode('UPI (PhonePe QR)')">
+              📱 PhonePe / UPI QR Scanner
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold" id="card-tab" data-bs-toggle="tab" data-bs-target="#tab-card" type="button" role="tab" onclick="setPaymentMode('Credit/Debit Card')">
+              💳 Credit / Debit Card
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold" id="netbanking-tab" data-bs-toggle="tab" data-bs-target="#tab-netbanking" type="button" role="tab" onclick="setPaymentMode('Net Banking')">
+              🏦 Net Banking
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold" id="cash-tab" data-bs-toggle="tab" data-bs-target="#tab-cash" type="button" role="tab" onclick="setPaymentMode('Cash on Boarding')">
+              💵 Pay on Boarding
+            </button>
+          </li>
+        </ul>
+
+        <!-- Payment Submit Form -->
+        <form action="{% url 'confirm_booking' %}" method="POST" id="paymentSubmitForm" onsubmit="return validatePaymentForm();">
+          {% csrf_token %}
+          <input type="hidden" name="bus_id" value="{{ bus.id }}">
+          <input type="hidden" name="travel_date" value="{{ travel_date_str }}">
+          <input type="hidden" name="seats_csv" value="{{ seats_csv }}">
+          <input type="hidden" name="lead_name" value="{{ lead_name }}">
+          <input type="hidden" name="phone" value="{{ phone }}">
+          <input type="hidden" name="email" value="{{ email }}">
+          <input type="hidden" name="boarding_point" value="{{ boarding_point }}">
+          <input type="hidden" name="dropping_point" value="{{ dropping_point }}">
+          <input type="hidden" name="coupon_code" value="{{ coupon_code }}">
+          <input type="hidden" name="base_fare" value="{{ base_fare }}">
+          <input type="hidden" name="discount_amount" value="{{ discount_amount }}">
+          <input type="hidden" name="gst_amount" value="{{ gst_amount }}">
+          <input type="hidden" name="total_fare" value="{{ total_fare }}">
+          <input type="hidden" name="passengers_data_json" value="{{ passengers_data_json }}">
+          <input type="hidden" name="payment_mode" id="selectedPaymentMode" value="UPI (PhonePe QR)">
+
+          <div class="tab-content" id="paymentTabsContent">
+            <!-- 1. UPI / PhonePe Scanner Tab -->
+            <div class="tab-pane fade show active" id="tab-upi" role="tabpanel">
+              <div class="row align-items-center g-4 p-3 bg-light rounded-4 border mb-4">
+                <div class="col-md-5 text-center">
+                  <div class="p-3 bg-white rounded-4 shadow d-inline-block border position-relative">
+                    <div class="badge bg-danger text-white mb-2 px-3 py-1 rounded-pill small fw-bold">
+                      ₹{{ total_fare|floatformat:2 }} Pre-Encoded
+                    </div>
+                    <div>
+                      <img src="{{ upi_qr_data_uri }}" alt="Dynamic PhonePe / UPI Payment Scanner QR" class="img-fluid rounded-3" style="max-height: 230px; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="mt-2 text-center">
+                      <span class="badge bg-light text-navy border font-monospace" style="font-size: 11px;">
+                        UPI ID: <strong>{{ upi_id }}</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="small text-success fw-bold mt-2 d-flex align-items-center justify-content-center gap-1">
+                    <span class="pulse-green"></span> Dynamic Amount Scanner Active
+                  </div>
+
+                  <!-- Quick Action on Mobile -->
+                  <div class="mt-2 d-block d-md-none">
+                    <a href="{{ upi_link }}" class="btn btn-warning btn-sm w-100 rounded-pill fw-bold text-dark shadow-sm">
+                      ⚡ Tap to Pay ₹{{ total_fare|floatformat:2 }} in UPI App
+                    </a>
+                  </div>
+                </div>
+
+                <div class="col-md-7">
+                  <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">PhonePe</span>
+                    <span class="badge bg-success bg-opacity-10 text-success fw-bold">Google Pay</span>
+                    <span class="badge bg-info bg-opacity-10 text-dark fw-bold">Paytm</span>
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold">BHIM / Any UPI</span>
+                  </div>
+
+                  <h5 class="fw-bold text-navy mb-2">How to Pay with Dynamic Scanner:</h5>
+                  <ol class="small text-secondary ps-3 mb-3" style="line-height: 1.8;">
+                    <li>Open <strong>PhonePe</strong>, <strong>Google Pay</strong>, or <strong>Paytm</strong> on your phone.</li>
+                    <li>Scan the QR code on the left — <strong>the ticket price of <span class="text-danger fw-bold">₹{{ total_fare|floatformat:2 }}</span> will automatically show in your UPI app</strong>.</li>
+                    <li>Approve and complete the payment to <strong>{{ merchant_name }}</strong>.</li>
+                    <li>Enter the <strong>12-Digit UPI Transaction ID / UTR Number</strong> from your payment receipt below.</li>
+                  </ol>
+                  
+                  <div class="p-3 bg-white border rounded-3 shadow-sm mb-3">
+                    <label for="upiUtrInput" class="form-label small fw-bold text-navy">
+                      Enter 12-Digit UPI Reference / UTR Number <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text font-monospace bg-light">UTR #</span>
+                      <input type="text" name="payment_utr" id="upiUtrInput" class="form-control font-monospace" placeholder="e.g. 427819284712" maxlength="20" required>
+                    </div>
+                    <div class="form-text small text-secondary">
+                      Your confirmed ticket and boarding pass will generate instantly upon submitting.
+                    </div>
+                  </div>
+
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="navigator.clipboard.writeText('{{ upi_id }}'); alert('UPI ID copied: {{ upi_id }}');">
+                      📋 Copy UPI ID
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="navigator.clipboard.writeText('{{ total_fare|floatformat:2 }}'); alert('Amount copied: ₹{{ total_fare|floatformat:2 }}');">
+                      📋 Copy Amount
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm py-3">
+                ✓ Submit UTR &amp; Print Ticket (₹{{ total_fare|floatformat:2 }})
+              </button>
+            </div>
+
+            <!-- 2. Credit/Debit Card Tab -->
+            <div class="tab-pane fade" id="tab-card" role="tabpanel">
+              <div class="credit-card-preview p-4 rounded-4 text-white mb-4 shadow" style="background: linear-gradient(135deg, #0A192F 0%, #1e3a8a 100%);">
+                <div class="card-chip mb-3"></div>
+                <div class="card-number-display font-monospace fs-5 mb-3" id="cardNumDisplay">4532 •••• •••• 5678</div>
+                <div class="d-flex justify-content-between small">
+                  <div>
+                    <div class="text-secondary text-uppercase" style="font-size: 9px;">CARD HOLDER</div>
+                    <div class="fw-bold" id="cardHolderDisplay">{{ lead_name|upper|default:"VALUED TRAVELER" }}</div>
+                  </div>
+                  <div>
+                    <div class="text-secondary text-uppercase" style="font-size: 9px;">EXPIRES</div>
+                    <div class="fw-bold" id="cardExpDisplay">12/28</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Card Number</label>
+                  <input type="text" class="form-control font-monospace" id="cardNumInput" placeholder="4532 8890 1234 5678" maxlength="19" value="4532 8890 1234 5678">
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Expiry Date (MM/YY)</label>
+                  <input type="text" class="form-control font-monospace" id="cardExpInput" placeholder="12/28" maxlength="5" value="12/28">
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">CVV Security Code</label>
+                  <input type="password" class="form-control font-monospace" id="cardCvvInput" placeholder="•••" maxlength="4" value="889">
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Cardholder Name</label>
+                  <input type="text" class="form-control" id="cardHolderInput" value="{{ lead_name|default:'Valued Traveler' }}">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm py-3">
+                Authorize Card Payment of ₹{{ total_fare|floatformat:2 }} &amp; Print Ticket
+              </button>
+            </div>
+
+            <!-- 3. Net Banking Tab -->
+            <div class="tab-pane fade" id="tab-netbanking" role="tabpanel">
+              <div class="row g-2 mb-4">
+                <div class="col-md-4 col-6">
+                  <div class="form-check p-3 border rounded-3 bg-light">
+                    <input class="form-check-input" type="radio" name="nb_bank" id="bankHdfc" value="HDFC Bank" checked>
+                    <label class="form-check-label fw-bold small" for="bankHdfc">🏦 HDFC Bank</label>
+                  </div>
+                </div>
+                <div class="col-md-4 col-6">
+                  <div class="form-check p-3 border rounded-3 bg-light">
+                    <input class="form-check-input" type="radio" name="nb_bank" id="bankSbi" value="State Bank of India">
+                    <label class="form-check-label fw-bold small" for="bankSbi">🏦 SBI Bank</label>
+                  </div>
+                </div>
+                <div class="col-md-4 col-6">
+                  <div class="form-check p-3 border rounded-3 bg-light">
+                    <input class="form-check-input" type="radio" name="nb_bank" id="bankIcici" value="ICICI Bank">
+                    <label class="form-check-label fw-bold small" for="bankIcici">🏦 ICICI Bank</label>
+                  </div>
+                </div>
+                <div class="col-md-4 col-6">
+                  <div class="form-check p-3 border rounded-3 bg-light">
+                    <input class="form-check-input" type="radio" name="nb_bank" id="bankAxis" value="Axis Bank">
+                    <label class="form-check-label fw-bold small" for="bankAxis">🏦 Axis Bank</label>
+                  </div>
+                </div>
+                <div class="col-md-4 col-6">
+                  <div class="form-check p-3 border rounded-3 bg-light">
+                    <input class="form-check-input" type="radio" name="nb_bank" id="bankKotak" value="Kotak Mahindra Bank">
+                    <label class="form-check-label fw-bold small" for="bankKotak">🏦 Kotak Bank</label>
+                  </div>
+                </div>
+                <div class="col-md-4 col-6">
+                  <div class="form-check p-3 border rounded-3 bg-light">
+                    <input class="form-check-input" type="radio" name="nb_bank" id="bankPnb" value="Punjab National Bank">
+                    <label class="form-check-label fw-bold small" for="bankPnb">🏦 PNB Bank</label>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm py-3">
+                Proceed to Net Banking Gateway (₹{{ total_fare|floatformat:2 }})
+              </button>
+            </div>
+
+            <!-- 4. Pay on Boarding Tab -->
+            <div class="tab-pane fade" id="tab-cash" role="tabpanel">
+              <div class="text-center p-5 bg-light rounded-4 mb-4 border">
+                <div class="fs-1 mb-2">💵</div>
+                <h5 class="fw-bold text-navy">Pay Cash Upon Boarding</h5>
+                <p class="text-secondary small mb-2">
+                  You can pay cash of <strong>₹{{ total_fare|floatformat:2 }}</strong> directly to the coach conductor/driver at your boarding point.
+                </p>
+                <div class="badge bg-success bg-opacity-20 text-success p-2 px-3 rounded-pill fw-bold">
+                  Instant Seat Reservation Confirmed
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm py-3">
+                Confirm Reservation &amp; Generate Boarding Pass
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setPaymentMode(mode) {
+    document.getElementById('selectedPaymentMode').value = mode;
+    var utrInput = document.getElementById('upiUtrInput');
+    if (mode.includes('UPI')) {
+      utrInput.setAttribute('required', 'required');
+    } else {
+      utrInput.removeAttribute('required');
+    }
+  }
+
+  function validatePaymentForm() {
+    var mode = document.getElementById('selectedPaymentMode').value;
+    if (mode.includes('UPI')) {
+      var utr = document.getElementById('upiUtrInput').value.trim();
+      if (!utr || utr.length < 6) {
+        alert('Please complete the PhonePe / UPI payment and enter your valid 12-Digit UPI Transaction ID / UTR Number to generate your ticket.');
+        document.getElementById('upiUtrInput').focus();
+        return false;
+      }
+    }
+    return true;
+  }
+</script>
+{% endblock %}

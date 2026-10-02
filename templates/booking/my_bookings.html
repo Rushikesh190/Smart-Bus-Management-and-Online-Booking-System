@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings & Tickets — Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-4">
+  <div class="mb-4">
+    <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">PASSENGER PORTAL</div>
+    <h2 class="fw-bold mb-1 text-navy">My Bookings &amp; Digital Tickets</h2>
+    <p class="text-secondary mb-0">Search, download, share, or cancel tickets with instant refund processing.</p>
+  </div>
+
+  <!-- Lookup Form -->
+  <div class="card border rounded-4 p-4 shadow-sm bg-white mb-4">
+    <form method="GET" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label for="lookupPhone" class="form-label small fw-bold text-secondary">Enter Registered Mobile Number</label>
+        <input type="tel" name="phone" id="lookupPhone" class="form-control" placeholder="10-digit mobile number" maxlength="10" value="{{ phone }}">
+      </div>
+      <div class="col-md-4">
+        <label for="lookupPNR" class="form-label small fw-bold text-secondary">Or Enter Ticket PNR</label>
+        <input type="text" name="pnr" id="lookupPNR" class="form-control font-monospace text-uppercase" placeholder="e.g. SJ240001" value="{{ pnr }}">
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">
+          Find My Bookings
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bookings Stream -->
+  {% if bookings %}
+  <div class="d-flex flex-column gap-3">
+    {% for b in bookings %}
+    <div class="card border rounded-4 p-4 shadow-sm bg-white">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <span class="badge bg-dark text-warning font-monospace mb-2">PNR: {{ b.pnr }}</span>
+          <h4 class="fw-bold mb-1 text-navy">{{ b.bus.from_city.name }} → {{ b.bus.to_city.name }}</h4>
+          <p class="text-secondary small mb-0">
+            {{ b.bus.name }} • Date: <strong>{{ b.travel_date|date:"D, d M Y" }}</strong> • Seats: <strong>{{ b.seats_csv }}</strong> • Paid: <strong class="text-danger">₹{{ b.total_fare|floatformat:2 }}</strong>
+          </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <span class="status-pill {{ b.status }} text-uppercase fw-bold">{{ b.status }}</span>
+          <a href="{% url 'ticket_detail' pnr=b.pnr %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            View E-Ticket
+          </a>
+          <a href="{% url 'live_tracking' %}?q={{ b.pnr }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            📍 Track
+          </a>
+          {% if b.status == 'confirmed' %}
+          <form action="{% url 'cancel_booking' pnr=b.pnr %}" method="POST" onsubmit="return confirm('Are you sure you want to cancel ticket {{ b.pnr }}? A 90% refund of ₹{{ b.total_fare|floatformat:0 }} will be processed.');" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3">
+              Cancel Trip
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% elif searched %}
+  <div class="card border border-dashed rounded-4 p-5 text-center bg-light">
+    <div class="fs-1 mb-2">🎫</div>
+    <h5 class="fw-bold">No bookings found for the entered details</h5>
+    <p class="text-secondary small mb-0">Please verify your 10-digit mobile number or 8-digit PNR.</p>
+  </div>
+  {% else %}
+  <div class="card border border-dashed rounded-4 p-5 text-center bg-light">
+    <div class="fs-1 mb-2">🔍</div>
+    <h5 class="fw-bold">Enter your Mobile Number or PNR to retrieve tickets</h5>
+    <p class="text-secondary small mb-0">You can download invoices, track live buses, or cancel reservations anytime.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

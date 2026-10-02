@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shriji Travels — Luxury Intercity Bus Booking{% endblock %}
+
+{% block content %}
+<!-- ============ HERO SECTION ============ -->
+<section class="hero-section">
+  <div class="container px-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="eyebrow-pill mb-3">
+          <span class="live-dot"></span> Official Shriji Express Network • 450+ Daily Trips
+        </div>
+        <h1 class="hero-headline">
+          Travel First Class.<br>
+          <em>Every Mile</em> Matters.
+        </h1>
+        <p class="hero-description text-light text-opacity-75 fs-6">
+          Experience ultra-smooth journeys on our next-generation <strong>Shriji Grand Royal</strong> and <strong>BharatBenz</strong> multi-axle luxury coaches. Choose your exact deck &amp; berth, track your bus live, and get digital e-tickets instantly.
+        </p>
+
+        <!-- Live Route Radar Animated Line -->
+        <div class="route-radar-box mt-4 p-3 rounded-4">
+          <div class="d-flex justify-content-between text-warning small fw-bold mb-2 font-monospace">
+            <span>⚡ LIVE NETWORK RADAR</span>
+            <span class="text-secondary">Average Speed: 75 km/h • Samruddhi Expressway Active</span>
+          </div>
+          <div class="routeline">
+            <svg viewBox="0 0 540 54" preserveAspectRatio="none" class="w-100">
+              <line x1="20" y1="27" x2="520" y2="27" class="track"/>
+              <line x1="20" y1="27" x2="320" y2="27" class="track-active"/>
+              <circle cx="20" cy="27" r="7" class="dot big origin-dot"/>
+              <circle cx="150" cy="27" r="4" class="dot"/>
+              <circle cx="280" cy="27" r="4" class="dot"/>
+              <circle cx="410" cy="27" r="4" class="dot"/>
+              <circle cx="520" cy="27" r="7" class="dot big dest-dot"/>
+              <text x="8" y="14" class="station-lbl">NASHIK</text>
+              <text x="130" y="14" class="station-lbl">SHIRDI</text>
+              <text x="260" y="14" class="station-lbl">PUNE</text>
+              <text x="385" y="14" class="station-lbl">SURAT</text>
+              <text x="475" y="14" class="station-lbl">MUMBAI</text>
+              <g class="buspin">
+                <rect x="0" y="32" width="56" height="20" rx="4" fill="var(--amber)" />
+                <text x="5" y="46" font-size="11" font-weight="700" fill="#0A192F" font-family="JetBrains Mono">🚌 BUS</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shriji Luxury Fleet Showcase Card -->
+      <div class="col-lg-5">
+        <div class="hero-bus-showcase-card rounded-4 shadow-lg border border-secondary border-opacity-25 overflow-hidden position-relative">
+          <div class="showcase-img-wrap position-relative" style="height: 220px;">
+            <img src="{% static 'images/hero_shriji_bus.jpg' %}?v=10" alt="Shriji Grand Royal Luxury Coach" class="w-100 h-100 object-fit-cover">
+            <div class="showcase-overlay position-absolute inset-0"></div>
+          </div>
+          <div class="showcase-badge position-absolute top-0 end-0 m-3">
+            <span class="badge-dot-green"></span> Premium Flagship Fleet
+          </div>
+          <div class="p-3 bg-dark bg-opacity-75 text-light">
+            <h5 class="fw-bold mb-1">Shriji Grand Royal Multi-Axle Luxury Coach</h5>
+            <p class="small text-secondary mb-3">Electronically Controlled Air Suspension • UV Air Filter • 4K Entertainment</p>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25">💺 Ergonomic Sleepers</span>
+              <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25">📶 5G Wi-Fi</span>
+              <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25">🔌 Type-C Fast Ports</span>
+              <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25">❄️ Dual Climate AC</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-2 mt-2 text-center">
+          <div class="col-3">
+            <div class="p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
+              <div class="fs-5 fw-bold text-warning font-display">1.2M+</div>
+              <div class="small text-secondary" style="font-size: 10px;">Travelers</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
+              <div class="fs-5 fw-bold text-warning font-display">4.9 ★</div>
+              <div class="small text-secondary" style="font-size: 10px;">Rating</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
+              <div class="fs-5 fw-bold text-warning font-display">100%</div>
+              <div class="small text-secondary" style="font-size: 10px;">Verified</div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
+              <div class="fs-5 fw-bold text-warning font-display">0 min</div>
+              <div class="small text-secondary" style="font-size: 10px;">Refund</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TRIP SEARCH CARD ============ -->
+    <div class="search-engine-wrap mt-5 shadow-lg rounded-4 overflow-hidden border">
+      <div class="search-engine-tabs d-flex p-2 gap-2 border-bottom">
+        <button type="button" class="btn btn-sm btn-light fw-bold active rounded-pill px-3">
+          <span class="tab-dot"></span> One Way
+        </button>
+        <button type="button" class="btn btn-sm btn-transparent text-secondary fw-bold rounded-pill px-3">
+          <span class="tab-dot"></span> Round Trip (Save 15%)
+        </button>
+        <button type="button" class="btn btn-sm btn-transparent text-secondary fw-bold rounded-pill px-3">
+          <span class="tab-dot"></span> Charter / Bus Rental
+        </button>
+      </div>
+
+      <form action="{% url 'search_buses' %}" method="GET" class="p-4" id="homeSearchForm">
+        <div class="row g-3 align-items-end">
+          <!-- Origin City -->
+          <div class="col-lg-3 col-md-6">
+            <label for="fromCity" class="form-label fw-bold small text-secondary">
+              <span>📍</span> From (Origin City)
+            </label>
+            <select name="from_city" id="fromCity" class="form-select select-input" required>
+              <option value="">Select Origin City</option>
+              {% for city in cities %}
+              <option value="{{ city.name }}" {% if city.name == 'Nashik' %}selected{% endif %}>{{ city.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Swap Button -->
+          <div class="col-lg-1 col-md-1 text-center d-none d-lg-block pb-1">
+            <button type="button" class="swap-cities-btn mx-auto" id="swapBtn" title="Swap origin and destination">
+              ⇄
+            </button>
+          </div>
+
+          <!-- Destination City -->
+          <div class="col-lg-3 col-md-6">
+            <label for="toCity" class="form-label fw-bold small text-secondary">
+              <span>🏁</span> To (Destination City)
+            </label>
+            <select name="to_city" id="toCity" class="form-select select-input" required>
+              <option value="">Select Destination City</option>
+              {% for city in cities %}
+              <option value="{{ city.name }}" {% if city.name == 'Mumbai' %}selected{% endif %}>{{ city.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Date of Journey -->
+          <div class="col-lg-3 col-md-6">
+            <label for="travelDate" class="form-label fw-bold small text-secondary">
+              <span>📅</span> Date of Journey
+            </label>
+            <input type="date" name="travel_date" id="travelDate" class="form-control date-input" value="{{ today_str }}" min="{{ today_str }}" required>
+            <div class="d-flex gap-1 mt-1">
+              <button type="button" class="btn btn-sm py-0 px-2 date-chip active" id="chipToday">Today</button>
+              <button type="button" class="btn btn-sm py-0 px-2 date-chip" id="chipTomorrow">Tomorrow</button>
+              <button type="button" class="btn btn-sm py-0 px-2 date-chip" id="chipDayAfter">+2 Days</button>
+            </div>
+          </div>
+
+          <!-- Search Button -->
+          <div class="col-lg-2 col-md-6">
+            <button type="submit" class="btn btn-primary btn-search-hero w-100 py-3 fw-bold rounded-3">
+              🔍 Search Buses
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Popular Route Chips Strip -->
+      <div class="popular-routes-bar p-3 border-top d-flex align-items-center flex-wrap gap-2">
+        <span class="fw-bold small text-secondary">🔥 Popular Routes:</span>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'search_buses' %}?from_city=Nashik&to_city=Mumbai" class="pop-chip text-decoration-none">
+            Nashik ⇄ Mumbai <span class="pop-fare">₹550</span>
+          </a>
+          <a href="{% url 'search_buses' %}?from_city=Nashik&to_city=Pune" class="pop-chip text-decoration-none">
+            Nashik ⇄ Pune <span class="pop-fare">₹680</span>
+          </a>
+          <a href="{% url 'search_buses' %}?from_city=Mumbai&to_city=Goa+(Panaji)" class="pop-chip text-decoration-none">
+            Mumbai ⇄ Goa <span class="pop-fare">₹1250</span>
+          </a>
+          <a href="{% url 'search_buses' %}?from_city=Pune&to_city=Nagpur" class="pop-chip text-decoration-none">
+            Pune ⇄ Nagpur <span class="pop-fare">₹1150</span>
+          </a>
+          <a href="{% url 'search_buses' %}?from_city=Surat&to_city=Mumbai" class="pop-chip text-decoration-none">
+            Surat ⇄ Mumbai <span class="pop-fare">₹650</span>
+          </a>
+          <a href="{% url 'search_buses' %}?from_city=Indore&to_city=Nashik" class="pop-chip text-decoration-none">
+            Indore ⇄ Nashik <span class="pop-fare">₹920</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED FLEET SHOWCASE ============ -->
+<section class="section py-5">
+  <div class="container px-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+      <div>
+        <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">SHRIJI EXPRESS DIRECTORY</div>
+        <h2 class="section-title fw-bold">ALL SCHEDULED FLEET ROUTES</h2>
+        <p class="text-secondary mb-0">Browse our daily active intercity fleet connecting major hubs in Western &amp; Central India.</p>
+      </div>
+      <a href="{% url 'search_buses' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+        View All Fleet Schedules →
+      </a>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+      {% for bus in featured_buses %}
+      <div class="card bus-card border rounded-4 p-4 shadow-sm bg-white">
+        <div class="row align-items-center g-3">
+          <!-- Operator Info -->
+          <div class="col-lg-3 col-md-4">
+            <h5 class="fw-bold mb-1 text-navy">{{ bus.name }}</h5>
+            <div class="small text-secondary mb-2">{{ bus.bus_type }} • {{ bus.number }}</div>
+            <span class="badge bg-success text-white px-2 py-1">★ {{ bus.rating|default:"4.9" }} ({{ bus.review_count|default:"380" }})</span>
+          </div>
+
+          <!-- Route Timeline -->
+          <div class="col-lg-6 col-md-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <div class="fs-4 fw-bold font-display text-navy">{{ bus.dep_time }}</div>
+                <div class="small text-secondary fw-bold">{{ bus.from_city.name }}</div>
+              </div>
+              <div class="text-center flex-grow-1 mx-3 position-relative">
+                <span class="small text-secondary fw-bold">{{ bus.duration }}</span>
+                <div class="line-track my-1" style="border-top: 2px dashed #cbd5e1;"></div>
+              </div>
+              <div class="text-end">
+                <div class="fs-4 fw-bold font-display text-navy">{{ bus.arr_time }}</div>
+                <div class="small text-secondary fw-bold">{{ bus.to_city.name }}</div>
+              </div>
+            </div>
+
+            <!-- Amenities Pills -->
+            <div class="d-flex gap-1 flex-wrap">
+              {% for amenity in bus.amenities_list|slice:":5" %}
+              <span class="badge bg-light text-secondary border small">✓ {{ amenity }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Pricing & Action CTA -->
+          <div class="col-lg-3 col-md-3 text-md-end border-start-md ps-md-3">
+            <div class="small text-muted text-decoration-line-through">₹{{ bus.fare|floatformat:0|add:"110" }}</div>
+            <div class="fs-3 fw-bold text-navy font-display mb-0">₹{{ bus.fare|floatformat:0 }}</div>
+            <div class="small text-secondary mb-1">per passenger seat</div>
+            <div class="small text-success fw-bold mb-2">✓ 30 seats available</div>
+            <a href="{% url 'seat_selection' bus_id=bus.id %}?date={{ today_str }}" class="btn btn-warning rounded-pill px-4 fw-bold w-100 text-dark shadow-sm">
+              Select Seats →
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ OFFERS & PROMO CODES ============ -->
+<section class="section py-5 bg-light bg-opacity-50">
+  <div class="container px-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+      <div>
+        <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">EXCLUSIVE DISCOUNTS</div>
+        <h2 class="section-title fw-bold">Active Promo Codes &amp; Coupons</h2>
+        <p class="text-secondary mb-0">Apply these verified discount codes at checkout to unlock instant savings.</p>
+      </div>
+      <a href="{% url 'offers' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+        View All Offers →
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for coupon in coupons|slice:":3" %}
+      <div class="col-md-4">
+        <div class="card offer-card h-100 border rounded-4 p-4 shadow-sm">
+          <div class="offer-tag mb-3">SAVE BIG</div>
+          <div class="offer-code-box d-flex justify-content-between align-items-center p-2 rounded-3 mb-3 border border-dashed">
+            <span class="offer-code font-monospace fw-bold fs-5 text-primary">{{ coupon.code }}</span>
+            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" onclick="window.copyCode('{{ coupon.code }}')">
+              📋 Copy
+            </button>
+          </div>
+          <h5 class="fw-bold mb-2">{{ coupon.description }}</h5>
+          <p class="text-secondary small mb-3">Min booking fare of ₹{{ coupon.min_fare }} required.</p>
+          <div class="text-success small fw-bold mt-auto">⚡ Instant deduction at checkout</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ SAFETY & LUXURY SHIELD ============ -->
+<section class="section py-5">
+  <div class="container px-4">
+    <div class="safety-shield-box rounded-4 p-5 text-light shadow-lg">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="fs-1">🛡️</div>
+        <div>
+          <h3 class="fw-bold mb-1">Shriji Travels Safety &amp; Comfort Promise</h3>
+          <p class="text-light text-opacity-75 mb-0">Every journey adheres to the highest safety and sanitization benchmarks in Indian road travel.</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+          <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10 h-100">
+            <div class="fs-2 mb-2">📡</div>
+            <h5 class="text-warning fw-bold mb-1">24x7 Live GPS Radar</h5>
+            <p class="small text-light text-opacity-75 mb-0">Real-time location sharing with family members and precision arrival countdown.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10 h-100">
+            <div class="fs-2 mb-2">👨‍✈️</div>
+            <h5 class="text-warning fw-bold mb-1">Double Certified Pilots</h5>
+            <p class="small text-light text-opacity-75 mb-0">Experienced long-distance drivers trained in defensive driving &amp; passenger safety.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10 h-100">
+            <div class="fs-2 mb-2">🧼</div>
+            <h5 class="text-warning fw-bold mb-1">Deep Sanitized Coaches</h5>
+            <p class="small text-light text-opacity-75 mb-0">Clean linen, sanitized sleeper berths, and fresh mineral water bottles on every trip.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10 h-100">
+            <div class="fs-2 mb-2">🚨</div>
+            <h5 class="text-warning fw-bold mb-1">Emergency SOS System</h5>
+            <p class="small text-light text-opacity-75 mb-0">One-touch direct panic button linked to 24/7 central control desk &amp; highway patrol.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PASSENGER REVIEWS ============ -->
+<section class="section py-5 bg-light bg-opacity-50">
+  <div class="container px-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+      <div>
+        <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">VERIFIED TRAVELERS</div>
+        <h2 class="section-title fw-bold">Customer Testimonials &amp; Ratings</h2>
+        <p class="text-secondary mb-0">Over 2,400+ 5-star reviews from corporate commuters, families, and pilgrims.</p>
+      </div>
+      <div class="badge bg-warning text-dark p-2 px-3 rounded-pill fs-6 fw-bold">
+        ⭐ 4.9 / 5.0 (2,450+ Reviews)
+      </div>
+    </div>
+
+    <div class="row g-4">
+      {% for review in reviews %}
+      <div class="col-lg-3 col-md-6">
+        <div class="card h-100 border rounded-4 p-4 shadow-sm">
+          <div class="text-warning mb-2">★★★★★</div>
+          <p class="card-text fst-italic text-secondary small mb-3">“{{ review.comment }}”</p>
+          <div class="mt-auto">
+            <h6 class="fw-bold mb-0 text-navy">{{ review.name }}</h6>
+            <small class="text-secondary">{{ review.route }} • {{ review.bus_type }}</small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ FREQUENTLY ASKED QUESTIONS ============ -->
+<section class="section py-5">
+  <div class="container px-4">
+    <div class="text-center mb-5">
+      <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">HAVE QUESTIONS?</div>
+      <h2 class="section-title fw-bold">Frequently Asked Questions</h2>
+      <p class="text-secondary">Answers to common queries regarding booking, luggage, boarding, and cancellations.</p>
+    </div>
+
+    <div class="accordion accordion-flush mx-auto shadow-sm rounded-4 overflow-hidden border" id="faqAccordion" style="max-width: 800px;">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+            Do I need to carry a physical printout of my ticket?
+          </button>
+        </h2>
+        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            No, a printed physical copy is not mandatory. You can simply show the SMS, WhatsApp confirmation, or the digital e-ticket with barcode on your smartphone during boarding.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+            How does the instant cancellation and refund work?
+          </button>
+        </h2>
+        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            You can cancel your booking directly from the "My Tickets" section up to 2 hours before scheduled departure. Standard cancellation charges are 10% (more than 12h prior), and your refund is automatically processed back to your original payment method.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+            What is the luggage allowance per passenger?
+          </button>
+        </h2>
+        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Each passenger is allowed up to 20 kg of personal luggage (1 trolley bag + 1 handbag). Extra baggage can be accommodated in the lower cargo hold by informing our terminal crew.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

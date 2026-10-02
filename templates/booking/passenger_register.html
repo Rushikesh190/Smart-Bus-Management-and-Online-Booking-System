@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Passenger Account — Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-5">
+  <div class="card border rounded-4 p-4 p-md-5 shadow-lg bg-white mx-auto" style="max-width: 480px;">
+    <div class="text-center mb-4">
+      <div class="fs-1 mb-2">✨</div>
+      <h3 class="fw-bold text-navy mb-1">Create Passenger Account</h3>
+      <p class="text-secondary small mb-0">Join Shriji Travels for quick ticket booking &amp; instant refunds.</p>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+
+      <div class="mb-3">
+        <label for="regName" class="form-label small fw-bold text-secondary">Full Name *</label>
+        <input type="text" name="name" id="regName" class="form-control" placeholder="e.g. Ramesh Kumar" required autofocus>
+      </div>
+
+      <div class="mb-3">
+        <label for="regPhone" class="form-label small fw-bold text-secondary">Mobile Number (10 Digits) *</label>
+        <input type="tel" name="phone" id="regPhone" class="form-control" placeholder="98XXXXXXXX" maxlength="10" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="regEmail" class="form-label small fw-bold text-secondary">Email Address (Optional)</label>
+        <input type="email" name="email" id="regEmail" class="form-control" placeholder="passenger@example.com">
+      </div>
+
+      <div class="mb-4">
+        <label for="regPassword" class="form-label small fw-bold text-secondary">Create Password *</label>
+        <input type="password" name="password" id="regPassword" class="form-control" placeholder="Create secure password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold mb-3">
+        Register &amp; Proceed →
+      </button>
+
+      <div class="text-center small text-secondary">
+        Already have an account? 
+        <a href="{% url 'passenger_login' %}?next={{ next_url }}" class="text-primary fw-bold text-decoration-none">
+          Log In
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select Seats — {{ bus.name }} | Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-4">
+  <!-- Back Button -->
+  <a href="{% url 'search_buses' %}?from_city={{ bus.from_city.name }}&to_city={{ bus.to_city.name }}&travel_date={{ travel_date_str }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 mb-3">
+    ← Back to Bus Results
+  </a>
+
+  <!-- Header & Bus Meta -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <span class="badge bg-warning text-dark mb-1">{{ bus.bus_type }}</span>
+      <h2 class="fw-bold mb-0 text-navy">{{ bus.name }} ({{ bus.number }})</h2>
+      <p class="text-secondary mb-0">
+        <strong>{{ bus.from_city.name }} → {{ bus.to_city.name }}</strong> • Dep: {{ bus.dep_time }} - Arr: {{ bus.arr_time }} • Journey Date: <strong>{{ travel_date|date:"D, d M Y" }}</strong>
+      </p>
+    </div>
+    <div class="card border p-2 px-3 rounded-3 text-end shadow-sm">
+      <small class="text-secondary">Fare per seat</small>
+      <div class="fs-4 fw-bold text-navy font-display">₹{{ bus.fare|floatformat:0 }}</div>
+    </div>
+  </div>
+
+  <form action="{% url 'checkout' %}" method="POST" id="seatSelectionForm">
+    {% csrf_token %}
+    <input type="hidden" name="bus_id" value="{{ bus.id }}">
+    <input type="hidden" name="travel_date" value="{{ travel_date_str }}">
+    <input type="hidden" name="selected_seats" id="selectedSeatsInput" value="">
+    <input type="hidden" name="fare_per_seat" id="farePerSeat" value="{{ bus.fare }}">
+
+    <div class="row g-4">
+      <!-- Left Column: Bus Floor Matrix -->
+      <div class="col-lg-6">
+        <div class="card border rounded-4 p-4 shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">💺 Bus Floor Plan</h5>
+            {% if is_sleeper %}
+            <!-- Deck Switcher -->
+            <div class="btn-group btn-group-sm" role="group" id="deckSwitcher">
+              <button type="button" class="btn btn-navy active px-3" id="tabLowerDeck">Lower Deck</button>
+              <button type="button" class="btn btn-outline-navy px-3" id="tabUpperDeck">Upper Deck (Sleepers)</button>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Coach Shell -->
+          <div class="bus-coach-shell rounded-4 p-3 bg-light border border-2 border-navy position-relative">
+            <!-- Front Cabin -->
+            <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom border-secondary border-dashed">
+              <span class="small fw-bold text-secondary">☸️ Driver Cabin</span>
+              <span class="badge bg-warning text-dark small">🚪 Front Entry</span>
+            </div>
+
+            <!-- Interactive Seat Grid -->
+            <div class="seat-grid-container d-flex flex-column gap-2" id="seatGrid">
+              <!-- Rendered via JavaScript -->
+            </div>
+
+            <!-- Rear Exit -->
+            <div class="text-center pt-2 mt-3 border-top border-secondary border-dashed small text-danger fw-bold">
+              🚨 Emergency Exit
+            </div>
+          </div>
+
+          <!-- Legend Bar -->
+          <div class="d-flex justify-content-around text-secondary small mt-3 pt-3 border-top flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-1">
+              <span class="leg-box leg-avail"></span> Available
+            </div>
+            <div class="d-flex align-items-center gap-1">
+              <span class="leg-box leg-sel"></span> Selected
+            </div>
+            <div class="d-flex align-items-center gap-1">
+              <span class="leg-box leg-booked"></span> Booked
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Passenger Details, Boarding, and Fare -->
+      <div class="col-lg-6">
+        <div class="card border rounded-4 p-4 shadow-sm">
+          <h5 class="fw-bold mb-3">📋 Journey &amp; Passenger Details</h5>
+
+          <!-- Boarding & Dropping Points -->
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label for="boardingPoint" class="form-label small fw-bold text-secondary">Boarding Point &amp; Time *</label>
+              <select name="boarding_point" id="boardingPoint" class="form-select select-input" required>
+                {% for bp in boarding_points %}
+                <option value="{{ bp.location }} ({{ bp.time }})">{{ bp.time }} — {{ bp.location }} ({{ bp.landmark }})</option>
+                {% empty %}
+                <option value="{{ bus.from_city.name }} Central Terminal ({{ bus.dep_time }})">{{ bus.dep_time }} — {{ bus.from_city.name }} Central</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="droppingPoint" class="form-label small fw-bold text-secondary">Dropping Point &amp; Time *</label>
+              <select name="dropping_point" id="droppingPoint" class="form-select select-input" required>
+                {% for dp in dropping_points %}
+                <option value="{{ dp.location }} ({{ dp.time }})">{{ dp.time }} — {{ dp.location }} ({{ dp.landmark }})</option>
+                {% empty %}
+                <option value="{{ bus.to_city.name }} Central Hub ({{ bus.arr_time }})">{{ bus.arr_time }} — {{ bus.to_city.name }} Central</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Primary Contact Details -->
+          <div class="p-3 bg-light rounded-3 mb-3 border">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold mb-0 small text-navy">Primary Contact for E-Ticket &amp; SMS</h6>
+              {% if is_passenger_logged_in %}
+              <span class="badge bg-success bg-opacity-25 text-success small">✓ Logged in as {{ current_passenger.name }}</span>
+              {% else %}
+              <a href="{% url 'passenger_login' %}?next={{ request.get_full_path }}" class="small fw-bold text-primary text-decoration-none">
+                👤 Log In to Account
+              </a>
+              {% endif %}
+            </div>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label for="leadName" class="form-label small text-secondary mb-1">Lead Passenger Name *</label>
+                <input type="text" name="lead_name" id="leadName" class="form-control" placeholder="e.g. Ramesh Kumar" value="{{ current_passenger.name|default:'' }}" required>
+              </div>
+              <div class="col-md-6">
+                <label for="leadPhone" class="form-label small text-secondary mb-1">Mobile Number (10 Digits) *</label>
+                <input type="tel" name="phone" id="leadPhone" class="form-control" placeholder="98XXXXXXXX" maxlength="10" value="{{ current_passenger.phone|default:'' }}" required>
+              </div>
+              <div class="col-12">
+                <label for="leadEmail" class="form-label small text-secondary mb-1">Email ID (for PDF E-Ticket receipt)</label>
+                <input type="email" name="email" id="leadEmail" class="form-control" placeholder="passenger@example.com" value="{{ current_passenger.email|default:'' }}">
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Passengers Container -->
+          <div id="dynamicPassengersContainer" class="mb-3">
+            <!-- Dynamic Passenger Form Rows Inserted via JS -->
+          </div>
+
+          <!-- Promo Code Engine -->
+          <div class="p-3 bg-light rounded-3 mb-3 border">
+            <label for="couponInput" class="form-label small fw-bold text-secondary mb-1">Have a Promo Code?</label>
+            <div class="input-group">
+              <input type="text" id="couponInput" name="coupon_code" class="form-control font-monospace text-uppercase" placeholder="e.g. SHRIJI20">
+              <button type="button" class="btn btn-dark" id="applyCouponBtn">Apply</button>
+            </div>
+            <div id="couponMsg" class="small fw-bold mt-1"></div>
+          </div>
+
+          <!-- Fare Breakdown Summary -->
+          <div class="border border-dashed rounded-3 p-3 mb-3">
+            <div class="d-flex justify-content-between small text-secondary mb-1">
+              <span>Selected Seats (<span id="selSeatCount">0</span>):</span>
+              <strong class="text-dark" id="selSeatsText">—</strong>
+            </div>
+            <div class="d-flex justify-content-between small text-secondary mb-1">
+              <span>Base Fare:</span>
+              <strong class="text-dark" id="baseFareText">₹0</strong>
+            </div>
+            <div class="d-flex justify-content-between small text-success mb-1" id="discountRow" style="display: none;">
+              <span>Promo Discount (<span id="appliedCodeText"></span>):</span>
+              <strong id="discountAmountText">-₹0</strong>
+            </div>
+            <div class="d-flex justify-content-between small text-secondary mb-1">
+              <span>GST (5%):</span>
+              <strong class="text-dark" id="gstAmountText">₹0</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top">
+              <span class="fw-bold">Total Amount Payable:</span>
+              <span class="fs-4 fw-bold text-danger font-display" id="totalAmountText">₹0</span>
+            </div>
+          </div>
+
+          <!-- Proceed Button -->
+          <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold fs-6" id="proceedBtn" disabled>
+            Proceed to Secure Payment →
+          </button>
+          <div class="text-center small text-secondary mt-2">
+            🔒 256-Bit SSL Encrypted • 100% Guaranteed Seat Allocation
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Embed Booked Seats JSON for JavaScript -->
+{{ booked_seats_json|json_script:"booked-seats-data" }}
+
+<script>
+  window.BUS_CONFIG = {
+    totalSeats: {{ bus.total_seats }},
+    isSleeper: {{ is_sleeper|yesno:"true,false" }},
+    decks: {{ bus.decks }},
+    fare: {{ bus.fare }}
+  };
+</script>
+{% endblock %}

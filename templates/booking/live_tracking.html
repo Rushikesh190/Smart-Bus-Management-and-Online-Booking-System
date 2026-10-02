@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Live GPS Bus Radar & Telemetry — Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-4">
+  <div class="mb-4">
+    <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">REAL-TIME GPS TELEMETRY</div>
+    <h2 class="fw-bold mb-1 text-navy">Live GPS Bus Radar &amp; Tracking</h2>
+    <p class="text-secondary mb-0">Track bus movement dynamically synchronized with real journey schedule, intermediate stations, speed, and ETA.</p>
+  </div>
+
+  <!-- Search Lookup Bar -->
+  <form method="GET" class="mb-4" style="max-width: 620px;">
+    <div class="input-group input-group-lg shadow-sm">
+      <span class="input-group-text bg-white">🔍</span>
+      <input type="text" name="q" class="form-control font-monospace text-uppercase" placeholder="Enter PNR (e.g. SJ240001) or Bus Plate / Number" value="{{ query }}">
+      <button class="btn btn-primary fw-bold px-4" type="submit">Track Live Bus</button>
+    </div>
+  </form>
+
+  {% if bus %}
+  <div class="card border rounded-4 p-4 shadow-lg bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 mb-2">
+          <span class="pulse-green"></span> {{ tracking_data.status_text|default:"LIVE RADAR CONNECTED" }}
+        </span>
+        <h3 class="fw-bold mb-0 text-navy">{{ bus.name }}</h3>
+        <p class="text-secondary mb-0">
+          Plate: <strong class="font-monospace text-dark">{{ bus.number }}</strong> • Category: <strong>{{ bus.bus_type }}</strong>
+          {% if booking %} • <span class="badge bg-navy text-warning">PNR: {{ booking.pnr }}</span>{% endif %}
+        </p>
+      </div>
+
+      <div class="d-flex gap-2">
+        <div class="bg-navy text-white p-3 rounded-4 text-center shadow-sm" style="min-width: 140px;">
+          <div class="fs-1 fw-bold text-warning font-display lh-1" id="liveSpeedDisplay">{{ tracking_data.speed|default:"72 km/h" }}</div>
+          <div class="small text-secondary fw-bold text-uppercase" style="font-size: 10px;">CURRENT SPEED</div>
+        </div>
+        <div class="bg-light border text-navy p-3 rounded-4 text-center shadow-sm" style="min-width: 140px;">
+          <div class="fs-1 fw-bold text-primary font-display lh-1">{{ tracking_data.progress_pct|default:45 }}%</div>
+          <div class="small text-secondary fw-bold text-uppercase" style="font-size: 10px;">JOURNEY PROGRESS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated Road Progress Track -->
+    <div class="p-4 bg-light rounded-4 border mb-4 position-relative overflow-hidden">
+      <div class="d-flex justify-content-between small text-secondary fw-bold mb-2">
+        <span>ORIGIN TERMINAL</span>
+        <span class="text-primary font-monospace">INTERMEDIATE GPS WAYPOINT</span>
+        <span>DESTINATION TERMINAL</span>
+      </div>
+
+      <div class="road-progress-line my-4 position-relative" style="background: #e2e8f0; height: 12px; border-radius: 6px;">
+        <div class="road-progress-fill" id="roadProgressFill" style="width: {{ tracking_data.progress_pct|default:45 }}%; height: 100%; background: linear-gradient(90deg, #D4AF37, #2563eb); border-radius: 6px; transition: width 1s ease;"></div>
+        <div class="road-bus-marker position-absolute" id="roadBusMarker" style="left: {{ tracking_data.progress_pct|default:45 }}%; top: -14px; transform: translateX(-50%); font-size: 26px; transition: left 1s ease;">
+          🚌
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-start mt-4">
+        <div style="max-width: 30%;">
+          <span class="stop-dot bg-primary"></span>
+          <div class="fw-bold fs-6 text-navy">{{ bus.from_city.name }}</div>
+          <small class="text-secondary">Dep: {{ bus.dep_time }}</small>
+        </div>
+        <div class="text-center" style="max-width: 40%;">
+          <span class="stop-dot bg-warning"></span>
+          <div class="fw-bold text-primary">{{ tracking_data.next_stop|default:"Highway Waypoint" }}</div>
+          <span class="badge bg-warning text-dark small mt-1">Status: {{ tracking_data.status_text|default:"On-Time" }}</span>
+        </div>
+        <div class="text-end" style="max-width: 30%;">
+          <span class="stop-dot bg-success"></span>
+          <div class="fw-bold fs-6 text-navy">{{ bus.to_city.name }}</div>
+          <small class="text-secondary">Est. Arr: {{ tracking_data.eta|default:bus.arr_time }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Driver & Safety Crew Info -->
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="fs-2">👨‍✈️</div>
+            <div>
+              <div class="small text-secondary text-uppercase fw-bold" style="font-size: 10px;">CAPTAIN / DRIVER</div>
+              <div class="fw-bold">{{ bus.driver_name|default:"Rajesh Shinde" }}</div>
+            </div>
+          </div>
+          <a href="tel:{{ bus.driver_phone|default:'+919822100001' }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            📞 Call
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="fs-2">🕒</div>
+            <div>
+              <div class="small text-secondary text-uppercase fw-bold" style="font-size: 10px;">SCHEDULED TRIP DURATION</div>
+              <div class="fw-bold">{{ bus.duration }}</div>
+            </div>
+          </div>
+          <span class="badge bg-light text-secondary border">Direct</span>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="fs-2">🛡️</div>
+            <div>
+              <div class="small text-secondary text-uppercase fw-bold" style="font-size: 10px;">SAFETY TELEMETRY</div>
+              <div class="fw-bold text-success">Active &amp; Monitored</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" onclick="alert('Emergency Alert Dispatched to 24/7 Shriji Central Control Room!')">
+            🚨 SOS
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="card border rounded-4 p-5 text-center bg-white">
+    <div class="fs-1 mb-2">📡</div>
+    <h4 class="fw-bold text-navy">No Bus Found for Query</h4>
+    <p class="text-secondary">Please verify your PNR number or Coach registration plate and try again.</p>
+    <a href="{% url 'live_tracking' %}" class="btn btn-primary rounded-pill px-4 mx-auto fw-bold">View Active Network Radar</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Subtle simulated telemetry live pulse
+  var baseSpeed = parseInt("{{ tracking_data.speed|default:'72' }}") || 72;
+  setInterval(function() {
+    var speedEl = document.getElementById('liveSpeedDisplay');
+    if (speedEl && baseSpeed > 0) {
+      var variation = Math.floor(Math.random() * 5) - 2;
+      var cur = Math.max(45, Math.min(85, baseSpeed + variation));
+      speedEl.innerText = cur + " km/h";
+    }
+  }, 4000);
+</script>
+{% endblock %}

@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Shriji Travels — Premium Bus Booking &amp; Fleet Management{% endblock %}</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Book luxury multi-axle AC sleeper and seater buses with Shriji Travels. Instant digital e-tickets, live GPS telemetry, and guaranteed on-time rides.">
+  <meta name="theme-color" content="#0A192F">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Design System CSS -->
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- ============ TOP ANNOUNCEMENT TICKER ============ -->
+  <aside class="top-announcement d-none d-md-block no-print">
+    <div class="container-fluid px-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-hot">✨ SPECIAL OFFER</span>
+          <span class="ticker-text">Use coupon <strong class="code-pill">SHRIJI20</strong> for 20% OFF on all Sleeper Coaches!</span>
+        </div>
+        <div class="d-flex align-items-center gap-3 text-secondary" style="font-size: 12px;">
+          <span>📞 Toll-Free: <a href="tel:18008897475" class="text-light fw-bold">1800-889-7475</a></span>
+          <span>•</span>
+          <span>💬 WhatsApp: <a href="https://wa.me/919823411223" target="_blank" class="text-light fw-bold">+91 98234 11223</a></span>
+          <span>•</span>
+          <span class="text-success fw-bold"><span class="pulse-green"></span> 99.8% On-Time Record</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN NAVIGATION BAR ============ -->
+  <nav class="navbar navbar-expand-lg topbar sticky-top no-print">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center gap-3" href="{% url 'home' %}">
+        <div class="brand-logo-container">
+          <img src="{% static 'images/logo.png' %}" alt="Shriji Travels Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-text-block">
+          <span class="brand-name">SHRIJI TRAVELS</span>
+          <span class="brand-sub">LUXURY • SAFETY • PUNCTUALITY</span>
+        </div>
+      </a>
+
+      <button class="navbar-toggler border-0 text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+              <span>🚌</span> Book Trip
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'live_tracking' %}active{% endif %}" href="{% url 'live_tracking' %}">
+              <span>📍</span> Live GPS Radar
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'my_bookings' %}active{% endif %}" href="{% url 'my_bookings' %}">
+              <span>🎫</span> My Tickets
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'offers' %}active{% endif %}" href="{% url 'offers' %}">
+              <span>🏷️</span> Offers &amp; Deals
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'reviews' %}active{% endif %}" href="{% url 'reviews' %}">
+              <span>⭐</span> Reviews
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link admin-nav-btn {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+              <span>🔐</span> Admin Portal
+            </a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+          <!-- Passenger Account Link -->
+          {% if is_passenger_logged_in %}
+          <div class="dropdown">
+            <button class="btn btn-outline-warning btn-sm rounded-pill dropdown-toggle px-3 fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              👤 {{ current_passenger.name }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><h6 class="dropdown-header">{{ current_passenger.phone }}</h6></li>
+              <li><a class="dropdown-item" href="{% url 'my_bookings' %}">🎫 My Bookings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="{% url 'passenger_logout' %}">🚪 Log Out</a></li>
+            </ul>
+          </div>
+          {% else %}
+          <a href="{% url 'passenger_login' %}?next={{ request.path }}" class="btn btn-warning btn-sm px-3 rounded-pill fw-bold text-dark">
+            👤 Passenger Login
+          </a>
+          {% endif %}
+
+          <!-- Theme Switcher -->
+          <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+            <span class="sun-icon">☀️</span>
+            <span class="moon-icon">🌙</span>
+          </button>
+          
+          <a href="tel:18008897475" class="btn btn-outline-light btn-sm px-3 rounded-pill d-none d-sm-inline-block">
+            📞 24/7 Support
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ DJANGO FLASH MESSAGES ============ -->
+  {% if messages %}
+  <div class="container my-3 no-print">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ============ MAIN CONTENT BLOCK ============ -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- ============ FLOATING AI TRAVEL ASSISTANT ============ -->
+  <div class="chatbot-floating-widget no-print" id="chatbotWidget">
+    <button class="chat-trigger-btn" id="chatTriggerBtn" title="Chat with Shriji Travel AI">
+      <span class="chat-bubble-icon">💬</span>
+      <span class="chat-badge-pulse"></span>
+    </button>
+
+    <div class="chat-window shadow-lg" id="chatWindow" style="display:none;">
+      <div class="chat-header">
+        <div class="d-flex align-items-center gap-2">
+          <div class="fs-4">🤖</div>
+          <div>
+            <div class="fw-bold fs-6">Shriji AI Travel Assistant</div>
+            <div class="text-success small"><span class="pulse-green"></span> Online • Instant Answers</div>
+          </div>
+        </div>
+        <button class="btn-close btn-close-white" id="chatCloseBtn"></button>
+      </div>
+
+      <div class="chat-messages p-3" id="chatMessages">
+        <div class="chat-msg bot">
+          <p class="mb-2">Namaste! 🙏 Welcome to Shriji Travels. How may I assist you today?</p>
+          <div class="d-flex flex-wrap gap-1 mt-2">
+            <a href="{% url 'my_bookings' %}" class="chat-chip text-decoration-none">🔍 Check PNR</a>
+            <a href="{% url 'home' %}" class="chat-chip text-decoration-none">🚌 Find Buses</a>
+            <a href="{% url 'offers' %}" class="chat-chip text-decoration-none">🏷️ View Coupons</a>
+            <button type="button" class="chat-chip" onclick="window.askBot('refund policy')">❌ Refund Policy</button>
+          </div>
+        </div>
+      </div>
+
+      <form class="chat-input-bar p-2 border-top bg-white d-flex gap-2" id="chatForm">
+        <input type="text" id="chatInput" class="form-control rounded-pill" placeholder="Ask about routes, PNR, offers..." autocomplete="off">
+        <button type="submit" class="btn btn-primary rounded-circle px-3">➤</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer no-print">
+    <div class="container px-4">
+      <div class="row g-4 mb-4">
+        <!-- Brand Bio -->
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <img src="{% static 'images/logo.png' %}" alt="Shriji Travels" class="footer-logo">
+            <div>
+              <div class="footer-brand-title">SHRIJI TRAVELS</div>
+              <div class="footer-brand-tagline">Safe • Comfortable • Reliable</div>
+            </div>
+          </div>
+          <p class="footer-about-txt">
+            Pioneering premium intercity luxury road transit across Maharashtra, Gujarat, Goa, and Madhya Pradesh with next-generation luxury multi-axle coaches.
+          </p>
+          <div class="d-flex gap-2 mt-3">
+            <span class="f-badge">🔒 256-Bit SSL Secured</span>
+            <span class="f-badge">⭐ 4.9/5 Certified</span>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-lg-2 col-md-6">
+          <h5 class="footer-title">Quick Links</h5>
+          <ul class="footer-nav-list list-unstyled">
+            <li><a href="{% url 'home' %}">Book Bus Tickets</a></li>
+            <li><a href="{% url 'live_tracking' %}">Live GPS Radar</a></li>
+            <li><a href="{% url 'my_bookings' %}">My Bookings / PNR</a></li>
+            <li><a href="{% url 'offers' %}">Promo Codes &amp; Deals</a></li>
+            <li><a href="{% url 'reviews' %}">Customer Reviews</a></li>
+            <li><a href="{% url 'admin_dashboard' %}">Fleet Admin Portal</a></li>
+          </ul>
+        </div>
+
+        <!-- Popular Routes -->
+        <div class="col-lg-3 col-md-6">
+          <h5 class="footer-title">Top Daily Routes</h5>
+          <ul class="footer-nav-list list-unstyled">
+            <li><a href="{% url 'search_buses' %}?from_city=Nashik&to_city=Mumbai">Nashik to Mumbai Express (Daily)</a></li>
+            <li><a href="{% url 'search_buses' %}?from_city=Nashik&to_city=Pune">Nashik to Pune Sleeper (Daily)</a></li>
+            <li><a href="{% url 'search_buses' %}?from_city=Mumbai&to_city=Goa+(Panaji)">Mumbai to Goa Royal Sleeper</a></li>
+            <li><a href="{% url 'search_buses' %}?from_city=Pune&to_city=Nagpur">Pune to Nagpur Superfast</a></li>
+            <li><a href="{% url 'search_buses' %}?from_city=Surat&to_city=Mumbai">Surat to Mumbai Luxury</a></li>
+          </ul>
+        </div>
+
+        <!-- 24/7 Support Contact -->
+        <div class="col-lg-3 col-md-6">
+          <h5 class="footer-title">24x7 Customer Support</h5>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="fs-4">📞</div>
+            <div>
+              <div class="small text-secondary text-uppercase fw-bold">Toll-Free Helpline</div>
+              <a href="tel:18008897475" class="text-light fw-bold">1800-889-7475</a>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="fs-4">💬</div>
+            <div>
+              <div class="small text-secondary text-uppercase fw-bold">WhatsApp Hotline</div>
+              <a href="https://wa.me/919823411223" class="text-light fw-bold">+91 98234 11223</a>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <div class="fs-4">✉️</div>
+            <div>
+              <div class="small text-secondary text-uppercase fw-bold">Corporate Email</div>
+              <a href="mailto:support@shrijitravels.in" class="text-light">support@shrijitravels.in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Partner Strip -->
+      <div class="footer-partners-bar py-3 border-top border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <span class="text-secondary small">Accepted Payment Gateways:</span>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="partner-pill">UPI</span>
+          <span class="partner-pill">Google Pay</span>
+          <span class="partner-pill">PhonePe</span>
+          <span class="partner-pill">Paytm</span>
+          <span class="partner-pill">Visa</span>
+          <span class="partner-pill">Mastercard</span>
+          <span class="partner-pill">RuPay</span>
+          <span class="partner-pill">Net Banking</span>
+        </div>
+      </div>
+
+      <!-- Copyright Bar -->
+      <div class="footer-bottom-bar py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 text-secondary small">
+        <div>&copy; 2026 Shriji Travels Network Private Limited. Built with Python &amp; Django.</div>
+        <div>
+          <a href="#" class="text-secondary text-decoration-none me-2">Privacy Policy</a> •
+          <a href="#" class="text-secondary text-decoration-none mx-2">Terms &amp; Conditions</a> •
+          <a href="#" class="text-secondary text-decoration-none ms-2">Cancellation Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+  <!-- Main JavaScript Bundle -->
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

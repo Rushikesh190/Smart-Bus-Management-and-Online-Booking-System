@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Passenger Reviews & Ratings — Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-4">
+  <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+    <div>
+      <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">VERIFIED TRAVELERS</div>
+      <h2 class="fw-bold mb-1 text-navy">Passenger Reviews &amp; Experiences</h2>
+      <p class="text-secondary mb-0">Read genuine feedback from thousands of travelers across Maharashtra &amp; Gujarat.</p>
+    </div>
+    <div class="badge bg-warning text-dark p-2 px-3 rounded-pill fs-6 fw-bold">
+      ⭐ 4.9 / 5.0 (2,450+ Total Rides)
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Reviews Stream -->
+    <div class="col-lg-8">
+      <div class="d-flex flex-column gap-3">
+        {% for r in reviews %}
+        <div class="card border rounded-4 p-4 shadow-sm bg-white">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="text-warning">
+              {% for i in "12345" %}
+                {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
+              {% endfor %}
+            </div>
+            <small class="text-secondary">{{ r.created_at|date:"d M Y" }}</small>
+          </div>
+          <p class="fst-italic text-secondary mb-3">“{{ r.comment }}”</p>
+          <div class="d-flex justify-content-between align-items-center border-top pt-2">
+            <h6 class="fw-bold mb-0 text-navy">{{ r.name }}</h6>
+            <span class="badge bg-light text-secondary border small">{{ r.route }} • {{ r.bus_type }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Write a Review Box -->
+    <div class="col-lg-4">
+      <div class="card border rounded-4 p-4 shadow-sm bg-white sticky-top" style="top: 80px;">
+        <h5 class="fw-bold mb-1 text-navy">Write a Review</h5>
+        <p class="text-secondary small mb-3">Share your travel experience with fellow passengers.</p>
+
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-secondary">Your Name *</label>
+            <input type="text" name="name" class="form-control" required placeholder="e.g. Ramesh Kumar">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-secondary">Rating *</label>
+            <select name="rating" class="form-select">
+              <option value="5">⭐⭐⭐⭐⭐ (5/5) Excellent</option>
+              <option value="4">⭐⭐⭐⭐ (4/5) Very Good</option>
+              <option value="3">⭐⭐⭐ (3/5) Average</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-secondary">Route Travelled</label>
+            <input type="text" name="route" class="form-control" placeholder="e.g. Nashik → Mumbai">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-secondary">Coach Model</label>
+            <input type="text" name="bus_type" class="form-control" placeholder="e.g. Shriji Grand Royal AC Seater">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary">Your Feedback *</label>
+            <textarea name="comment" class="form-control" rows="3" required placeholder="Describe your journey, comfort, driving, and staff..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Submit Review</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Deals & Promo Coupons — Shriji Travels{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-4">
+  <div class="mb-4">
+    <div class="eyebrow text-warning fw-bold small text-uppercase font-monospace">EXCLUSIVE DISCOUNTS</div>
+    <h2 class="fw-bold mb-1 text-navy">Shriji Travels Offers &amp; Promo Codes</h2>
+    <p class="text-secondary mb-0">Use these verified coupon codes to unlock maximum savings on your bus tickets.</p>
+  </div>
+
+  <div class="row g-4">
+    {% for coupon in coupons %}
+    <div class="col-md-4">
+      <div class="card offer-card h-100 border rounded-4 p-4 shadow-sm bg-white">
+        <div class="offer-tag mb-3">SAVE BIG</div>
+        <div class="offer-code-box d-flex justify-content-between align-items-center p-2 rounded-3 mb-3 border border-dashed bg-light">
+          <span class="offer-code font-monospace fw-bold fs-5 text-primary">{{ coupon.code }}</span>
+          <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" onclick="window.copyCode('{{ coupon.code }}')">
+            📋 Copy
+          </button>
+        </div>
+        <h5 class="fw-bold mb-2">{{ coupon.description }}</h5>
+        <p class="text-secondary small mb-3">
+          {% if coupon.discount_type == 'percent' %}
+          {{ coupon.value }}% discount up to ₹{{ coupon.max_discount }}. Min booking fare: ₹{{ coupon.min_fare }}.
+          {% else %}
+          Flat ₹{{ coupon.value }} discount on minimum booking fare of ₹{{ coupon.min_fare }}.
+          {% endif %}
+        </p>
+        <div class="text-success small fw-bold mt-auto">⚡ Instant discount applied at checkout</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
